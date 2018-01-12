@@ -1,6 +1,7 @@
-var func = "", result= 0, prevEntry = "", decimalCheck = false; //checks if a decimal point have entered to number to prevent double entry;
+var func = "", result= "", prevEntry = "", decimalCheck = false; //checks if a decimal point have entered to number to prevent double entry;
 const regex = /[0-9]/g;
-
+const regex0 = /\b0*((\d+\.\d+|\d+))\b/g; 
+//check for unecessary 0
 $(document).ready(function () {
     //mouse events
     $("button").click(function(){
@@ -8,9 +9,12 @@ $(document).ready(function () {
     });
     //keyboard events
     $(window).keypress (function (evt) {
-        console.log(evt.which);
         var value = "";
         switch (evt.which) {
+            case 44:
+            case 46:
+                value = ".";
+                break;
             case 48:
                 value = "0";
                 break;
@@ -59,14 +63,15 @@ $(document).ready(function () {
             default:
                 break;
         }
-        console.log(value);
         buttons(value);
     });
 });
 
 
 function buttons(val) {
-    
+    if (result == "Not compute!") {
+        reset();
+    }
     switch (val) {
         case "AC":
         //reset
@@ -76,18 +81,14 @@ function buttons(val) {
         //delete last entry
             func = func.slice(0, -1);
             break;
-        case "-/+":
-        //change the sign of the result
-            result *= -1;
-            break;
         case "/":
         case "*":
         case "-":
         case "+":
-            if (result != 0){
+            if (result !== ""){
                 //checks if we called the = before
                 func = result + val;
-                result = 0;
+                result = "";
             }else if (!prevEntry.match(regex)) {
                 //prevents 2 symbols in row
                 func = func.slice(0, -1) + val; 
@@ -102,41 +103,33 @@ function buttons(val) {
             decimalCheck = false;
             break;
         case ".":
-            if (result != 0) {
+            if (result !== "") {
                 reset();
             }
-            if (!prevEntry.match(regex) && !decimalCheck) {
-                func +="0" + val;
-                decimalCheck = true;
-            } else if (prevEntry.match(regex) && !decimalCheck) {
+            if (!decimalCheck) {
                 func += val;
                 decimalCheck = true;
             }
-            break;
-        case "0":
-            if (!prevEntry.match(regex)) {
-                break;
-            } else {
-                func += val;
-            }
-            
             break;
         default:
-        //numbers except 0
-        if (result != 0){
+        if (result !== ""){
             reset();    
         }
         func += val;
         break;
     }
+    func = func.replace(regex0, "$1");
     display(func, result);
     prevEntry= func.slice(-1);
 }
 
 function display(f,r) {
     //display the result and function to the screen
+    
     if (r.toString().length > 13) {
         $("#result").html("Digit Limit Met");
+    } else if (result == ""){
+        $("#result").html("0");
     } else { 
         $("#result").html(r);
     }
@@ -156,13 +149,18 @@ function calculate(f) {
         //prevents error if last entry is not number
         func = func.slice(0, -1);
     }
-    result = parseFloat(eval(func).toFixed(5));
+    result = parseFloat(eval(func).toFixed(10));
+    if (result == Infinity || result == -Infinity || result == NaN || func == "0/0") {
+        result = "Not compute!";
+    }
+    func += "=" + result;
     display(func, result);
 }
 
 function reset() {
     //resets the calculator
     func = "";
-    result = 0;
+    result = "";
     prevEntry = "";
+    decimalCheck = false;
 }
