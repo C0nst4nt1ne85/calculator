@@ -118,6 +118,7 @@ function buttons(val) {
         func += val;
         break;
     }
+    //remove unecessary 0s
     func = func.replace(regex0, "$1");
     display(func, result);
     prevEntry= func.slice(-1);
@@ -136,7 +137,7 @@ function display(f,r) {
     
     if (f.length > 28) {
         $("#calculation").html("Digit Limit Met");
-    } else if (f != 0) {
+    } else if (f != "") {
         $("#calculation").html(f);
     } else {
         $("#calculation").html("");
