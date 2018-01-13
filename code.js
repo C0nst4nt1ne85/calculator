@@ -1,6 +1,7 @@
 var func = "", result= "", prevEntry = "", decimalCheck = false; //checks if a decimal point have entered to number to prevent double entry;
-const regex = /[0-9]/g;
-const regex0 = /\b0*((\d+\.\d+|\d+))\b/g; 
+const regex = /[0-9]+/g;
+const regex0 = /\b0*((\d+\.\d+|\d+))\b/g;
+const lastNumRegex = /(\d*\.?\d+)$/g;
 //check for unecessary 0
 $(document).ready(function () {
     //mouse events
@@ -81,6 +82,16 @@ function buttons(val) {
         //delete last entry
             func = func.slice(0, -1);
             break;
+        case "+/-":
+            if (prevEntry.match(regex)){
+                // checks if it is a number but not =
+                var lastNum = func.match(lastNumRegex);
+                func = func.slice(0, -lastNum[0].length) + "-(" + lastNum + ") ";
+            }
+            else if (result !== "") {
+                result *= -1;
+            }
+            break;
         case "/":
         case "*":
         case "-":
@@ -99,6 +110,8 @@ function buttons(val) {
             break;
         case "=":
         //updates result
+            prevEntry = "="; 
+            //check for = for the +/-
             calculate(func);
             decimalCheck = false;
             break;
@@ -121,7 +134,10 @@ function buttons(val) {
     //remove unecessary 0s
     func = func.replace(regex0, "$1");
     display(func, result);
-    prevEntry= func.slice(-1);
+   if (prevEntry != "=") {
+       prevEntry = func.slice(-1);
+    }
+    
 }
 
 function display(f,r) {
@@ -146,7 +162,7 @@ function display(f,r) {
 
 function calculate(f) {
     //do the maths
-    if (!prevEntry.match(regex)) {
+    if (!prevEntry.match(regex) && prevEntry != "=") {
         //prevents error if last entry is not number
         func = func.slice(0, -1);
     }
