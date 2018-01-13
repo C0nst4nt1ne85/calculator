@@ -1,4 +1,4 @@
-var func = "", result= "", prevEntry = "", decimalCheck = false; //checks if a decimal point have entered to number to prevent double entry;
+var func = "", result= "", prevEntry = "", decimalCheck = false, lastNum; //checks if a decimal point have entered to number to prevent double entry;
 const regex = /[0-9]+/g;
 const regex0 = /\b0*((\d+\.\d+|\d+))\b/g;
 const lastNumRegex = /(\d*\.?\d+)$/g;
@@ -73,6 +73,9 @@ function buttons(val) {
     if (result == "Not compute!") {
         reset();
     }
+    if (prevEntry == "=") {
+        prevEntry ="";
+    }
     switch (val) {
         case "AC":
         //reset
@@ -85,10 +88,10 @@ function buttons(val) {
         case "+/-":
             if (prevEntry.match(regex)){
                 // checks if it is a number but not =
-                var lastNum = func.match(lastNumRegex);
+                lastNum = func.match(lastNumRegex);
                 func = func.slice(0, -lastNum[0].length) + "-(" + lastNum + ") ";
             }
-            else if (result !== "") {
+            else if (result !== "" ) {
                 result *= -1;
             }
             break;
@@ -134,7 +137,7 @@ function buttons(val) {
     //remove unecessary 0s
     func = func.replace(regex0, "$1");
     display(func, result);
-   if (prevEntry != "=") {
+    if (prevEntry != "=") {
        prevEntry = func.slice(-1);
     }
     
